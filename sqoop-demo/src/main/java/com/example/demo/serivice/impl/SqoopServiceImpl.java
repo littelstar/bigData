@@ -29,6 +29,8 @@ public class SqoopServiceImpl implements SqoopService {
                 "--table", table,
                 "-m", String.valueOf(m),
                 "--bindir", "./target/classes",
+                "--create-hive-table",
+                "--target-dir","/user/hive/warehouse/data_item"
         };
 
         SqoopBean sqoopBean = new SqoopBean();
@@ -65,8 +67,8 @@ public class SqoopServiceImpl implements SqoopService {
                 "-m", String.valueOf(databaseArgs.getM()),
                 "--incremental", "append",
                 "--bindir", "./target/classes",
-                "--check-column", "order_id",
-                "--last-value", "12"
+                "--check-column", databaseArgs.getColumn(),
+                "--last-value",databaseArgs.getValue()
         };
 
         SqoopBean sqoopBean = new SqoopBean();
@@ -84,6 +86,8 @@ public class SqoopServiceImpl implements SqoopService {
         Sqoop sqoop = new Sqoop((com.cloudera.sqoop.tool.SqoopTool) tool, loadPlugins);
         int i1 = Sqoop.runSqoop(sqoop, expandArguments);
         int i = sqoopBean.setI(i1);
+        String incrementalLastValue = sqoop.getOptions().getIncrementalLastValue();
+        System.out.println(incrementalLastValue);
         Timestamp ts = sqoopBean.setTs(new Timestamp(System.currentTimeMillis()));
         return sqoopBean;
     }
