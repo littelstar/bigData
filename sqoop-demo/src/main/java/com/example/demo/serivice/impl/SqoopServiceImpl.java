@@ -19,6 +19,7 @@ import java.sql.Timestamp;
 public class SqoopServiceImpl implements SqoopService {
     @Override
     public SqoopBean db2db(String jdbc, String driver, String username, String password, String table, int m, String putlocation) throws Exception {
+        System.setProperty("java.home.dir","C:\\Program Files\\Java\\jdk1.8.0_202");
 
         //bindir配置classs文件地址，否则会报错：ClassNotFound
         String[] args = new String[]{
@@ -28,16 +29,21 @@ public class SqoopServiceImpl implements SqoopService {
                 "-password", password,
                 "--table", table,
                 "-m", String.valueOf(m),
-                "--bindir", "./target/classes",
+                // "--bindir", "./target/classes",
                 "--create-hive-table",
-                "--target-dir","/user/hive/warehouse/data_item"
+                "--hive-table",table,
+                "-direct",
+                "--hive-import",
+                // "--hadoop-mapred-home", "/root/sparkOnYARN/hadoop-3.1.2/share/hadoop/"
+                // "--target-dir","/user/hive/warehouse/"
         };
 
         SqoopBean sqoopBean = new SqoopBean();
         String[] expandArguments = OptionsFileUtil.expandArguments(args);
         SqoopTool tool = SqoopTool.getTool("import");
         Configuration conf = new Configuration();
-        conf.set("fs.default.name", putlocation);//设置HDFS服务地址
+        conf.set("fs.defaultFS", putlocation);//设置HDFS服务地址
+        conf.set("","");
         Configuration loadPlugins = SqoopTool.loadPlugins(conf);
         Sqoop sqoop = new Sqoop((com.cloudera.sqoop.tool.SqoopTool) tool, loadPlugins);
         int i1 = Sqoop.runSqoop(sqoop, expandArguments);
@@ -68,7 +74,8 @@ public class SqoopServiceImpl implements SqoopService {
                 "--incremental", "append",
                 "--bindir", "./target/classes",
                 "--check-column", databaseArgs.getColumn(),
-                "--last-value",databaseArgs.getValue()
+                "--last-value",databaseArgs.getValue(),
+                "--hive-import"
         };
 
         SqoopBean sqoopBean = new SqoopBean();

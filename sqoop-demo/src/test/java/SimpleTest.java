@@ -1,29 +1,56 @@
 import com.cloudera.sqoop.SqoopOptions;
-import org.apache.sqoop.tool.ImportTool;
+import com.cloudera.sqoop.manager.ConnManager;
+import com.cloudera.sqoop.metastore.JobData;
+import com.cloudera.sqoop.tool.SqoopTool;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.sqoop.ConnFactory;
+import org.apache.sqoop.Sqoop;
 
 import java.io.IOException;
+import java.util.UUID;
 
 /**
  * @author ZD
  */
 public class SimpleTest {
     public static void main(String[] args) throws IOException {
-        SqoopOptions options = new SqoopOptions();
-        options.setConnectString("jdbc:mysql://210.14.158.133:6033/isc-admin");
-        options.setUsername("lipeipei");
-        options.setPassword("lipeipei");
-        options.setSqlQuery("SELECT * FROM role WHERE $CONDITIONS limit 10");
-        // options.setSplitByCol("log_id")
-        // sqoop import --connect jdbc:mysql://210.14.158.133:6033/isc-admin --username lipeipei --password lipeipei --table data_item --hive-import -m 1
-        options.setHiveImport(true);
-        options.setHiveTableName("role1");
-        // HBase options
-        // options.setHBaseTable("role1");
-        // options.setHBaseColFamily("colFamily");
-        // options.setCreate;    // Create HBase table, if it does not exist
-        // options.setHBaseRowKeyColumn("log_id");
-        int ret = new ImportTool().run(options);
-        System.out.println("结果"+ret);
+
+        System.setProperty("hadoop.home.dir", "F:\\hadoop-3.3.0");
+        System.setProperty("HADOOP_USER_NAME", "root");
+        String hiveTableName = "shedlock";
+        String querySql="select * from shedlock where name is not null and $CONDITIONS";
+        SqoopTool sqoopTool = SqoopTool.getTool("import");
+        SqoopOptions sqoopOptions = new SqoopOptions();
+        sqoopOptions.setConnectString("jdbc:mysql://210.14.158.133:6033/isc-admin");
+        sqoopOptions.setUsername("lipeipei");
+        sqoopOptions.setPassword("lipeipei");
+        sqoopOptions.setNumMappers(1);
+        sqoopOptions.setNullStringValue("\\\\N");
+        sqoopOptions.setNullNonStringValue("\\\\N");
+        sqoopOptions.setFieldsTerminatedBy('\001');
+        sqoopOptions.setTargetDir("/data/hive/warehouse/" + hiveTableName.toLowerCase());
+        sqoopOptions.setCodeOutputDir("sqoopjavafile");
+        sqoopOptions.setJarOutputDir("sqoopcompilefile/" + UUID.randomUUID().toString() + "/");
+        sqoopOptions.setHiveDropDelims(true);
+        sqoopOptions.setSqlQuery(querySql);
+        sqoopOptions.setAppendMode(true);
+        sqoopOptions.setClassName(hiveTableName + UUID.randomUUID().toString());
+        sqoopOptions.setSqlQuery(querySql);
+        sqoopOptions.setAppendMode(true);
+        sqoopOptions.setClassName(hiveTableName + UUID.randomUUID().toString());
+        Configuration conf= new Configuration();
+        conf.set("fs.defaultFS","hdfs://192.168.31.133:9000");
+        Sqoop sqoop = new Sqoop(sqoopTool, SqoopTool.loadPlugins(conf), sqoopOptions);
+        int i = Sqoop.runSqoop(sqoop, new String[]{});
+        System.out.println("结果"+i);
+
+        //
+        // ConnFactory connFactory = new ConnFactory(conf);
+        // JobData jobData = new JobData();
+        // jobData.setSqoopOptions(sqoopOptions);
+        // ConnManager manager = connFactory.getManager(jobData);
+        // manager.
+
 
     }
 }

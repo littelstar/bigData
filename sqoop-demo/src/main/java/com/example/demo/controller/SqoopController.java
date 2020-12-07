@@ -23,7 +23,21 @@ public class SqoopController {
     //数据从mysql到hdfs
     @PostMapping("/mysql2hdfs")
     @ResponseBody
-    public SqoopBean sqoopTransform(String jdbc, String driver, String username, String password, String table, int m, String targetdir, String putlocation) throws Exception {
+    public SqoopBean sqoopTransform() throws Exception {
+        String jdbc = "jdbc:mysql://210.14.158.133:6033/isc-admin";
+        String driver = "com.mysql.jdbc.Driver";
+        String username = "lipeipei";
+        String password = "lipeipei";
+        String table = "shedlock";
+        int m = 1;
+        String targetdir = "/root/data_item";
+        String putlocation = "hdfs://192.168.31.133:9000";
+        // System.setProperty("hadoop.home.dir", "F:\\hadoop-3.3.0");
+        // System.setProperty("hive.home.dir","F:\\apache-hive-3.1.2-bin");
+        System.setProperty("HADOOP_USER_NAME", "root");
+        // System.setProperty("sqoop.home.dir","F:\\sqoop-1.4.7");
+        // System.load("F:\\hadoop-3.3.0/bin/hadoop.dll");
+        // SqoopBean sqoopBean = sqoopService.db2db(jdbc, driver, username, password, table, m, putlocation);
         return ss.db2db(jdbc, driver, username, password, table, m, putlocation);
         //返回0正确，返回1错误
     }

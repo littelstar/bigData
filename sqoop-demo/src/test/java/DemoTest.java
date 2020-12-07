@@ -2,6 +2,8 @@ import com.example.demo.SqoopApplication;
 import com.example.demo.bean.DatabaseArgs;
 import com.example.demo.bean.SqoopBean;
 import com.example.demo.serivice.SqoopService;
+import org.apache.hadoop.hive.conf.HiveConf;
+import org.apache.hadoop.util.Shell;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,16 +26,21 @@ public class DemoTest {
 
     @Test
     public void test() throws Exception {
+        boolean windows = Shell.WINDOWS;
+        System.out.println(windows);
+
         String jdbc = "jdbc:mysql://210.14.158.133:6033/isc-admin";
         String driver = "com.mysql.jdbc.Driver";
         String username = "lipeipei";
         String password = "lipeipei";
-        String table = "data_item";
+        String table = "email_service";
         int m = 1;
         String targetdir = "/root/data_item";
         String putlocation = "hdfs://192.168.31.133:9000";
         System.setProperty("hadoop.home.dir", "F:\\hadoop-3.3.0");
-        // System.setProperty("HADOOP_USER_NAME", "root");
+        System.setProperty("hive.home.dir","F:\\apache-hive-3.1.2-bin");
+        System.setProperty("HADOOP_USER_NAME", "root");
+        // System.setProperty("sqoop.home.dir","F:\\sqoop-1.4.7");
         // System.load("F:\\hadoop-3.3.0/bin/hadoop.dll");
         SqoopBean sqoopBean = sqoopService.db2db(jdbc, driver, username, password, table, m, putlocation);
         System.out.println(sqoopBean.getI() + "结果");
@@ -44,13 +51,13 @@ public class DemoTest {
         String driver = "com.mysql.jdbc.Driver";
         String username = "lipeipei";
         String password = "lipeipei";
-        String table = "data_item";
+        String table = "email_service";
         int m = 1;
         String targetdir = "/root/data_item";
         String putlocation = "hdfs://192.168.31.133:9000";
         System.setProperty("hadoop.home.dir", "F:\\hadoop-3.3.0");
         String column = "id";
-        String value = "86";
+        String value = "16";
         DatabaseArgs databaseArgs = new DatabaseArgs(jdbc,driver,username,password,table,m,putlocation,column,value);
         databaseArgs.setDriver(driver);
         databaseArgs.setJdbc(jdbc);
